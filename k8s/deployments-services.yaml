@@ -1,0 +1,195 @@
+# Namespace must exist before applying these resources (see namespace.yaml)
+
+---
+# RabbitMQ Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbitmq
+  namespace: rabbitlab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rabbitmq
+  template:
+    metadata:
+      labels:
+        app: rabbitmq
+    spec:
+      containers:
+        - name: rabbitmq
+          image: rabbitmq:3.12-management
+          ports:
+            - containerPort: 5672
+            - containerPort: 15672
+          env:
+            - name: RABBITMQ_DEFAULT_USER
+              value: "guest"
+            - name: RABBITMQ_DEFAULT_PASS
+              value: "guest"
+
+---
+# RabbitMQ Service (ClusterIP for 5672, NodePort for management UI)
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq
+  namespace: rabbitlab
+spec:
+  type: ClusterIP
+  selector:
+    app: rabbitmq
+  ports:
+    - name: amqp
+      port: 5672
+      targetPort: 5672
+    - name: management
+      port: 15672
+      targetPort: 15672
+
+---
+# query-svc Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: query-svc
+  namespace: rabbitlab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: query-svc
+  template:
+    metadata:
+      labels:
+        app: query-svc
+    spec:
+      containers:
+        - name: query-svc
+          image: query-svc:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 5000
+
+---
+# Service for query-svc (NodePort to access externally via minikube)
+apiVersion: v1
+kind: Service
+metadata:
+  name: query-svc
+  namespace: rabbitlab
+spec:
+  type: NodePort
+  selector:
+    app: query-svc
+  ports:
+    - port: 5000
+      targetPort: 5000
+      nodePort: 30000
+
+---
+# comercialinfo-svc Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: commercialinfo-svc
+  namespace: rabbitlab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: commercialinfo-svc
+  template:
+    metadata:
+      labels:
+        app: commercialinfo-svc
+    spec:
+      containers:
+        - name: commercialinfo-svc
+          image: commercialinfo-svc:latest
+          imagePullPolicy: Never
+
+---
+# socialmedia-svc Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: socialmedia-svc
+  namespace: rabbitlab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: socialmedia-svc
+  template:
+    metadata:
+      labels:
+        app: socialmedia-svc
+    spec:
+      containers:
+        - name: socialmedia-svc
+          image: socialmedia-svc:latest
+          imagePullPolicy: Never
+
+---
+# officialrecords-svc Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: officialrecords-svc
+  namespace: rabbitlab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: officialrecords-svc
+  template:
+    metadata:
+      labels:
+        app: officialrecords-svc
+    spec:
+      containers:
+        - name: officialrecords-svc
+          image: officialrecords-svc:latest
+          imagePullPolicy: Never
+
+---
+# dashboard-svc Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dashboard-svc
+  namespace: rabbitlab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dashboard-svc
+  template:
+    metadata:
+      labels:
+        app: dashboard-svc
+    spec:
+      containers:
+        - name: dashboard-svc
+          image: dashboard-svc:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 5001
+
+---
+# Service for dashboard (NodePort)
+apiVersion: v1
+kind: Service
+metadata:
+  name: dashboard-svc
+  namespace: rabbitlab
+spec:
+  type: NodePort
+  selector:
+    app: dashboard-svc
+  ports:
+    - port: 5001
+      targetPort: 5001
+      nodePort: 30001

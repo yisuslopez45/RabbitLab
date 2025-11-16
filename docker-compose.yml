@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3.12-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    networks:
+      - rabbitlab-network
+
+  query-svc:
+    build: ./query-svc
+    container_name: query-svc
+    depends_on:
+      - rabbitmq
+    environment:
+      FLASK_ENV: production
+    ports:
+      - "5000:5000"
+    networks:
+      - rabbitlab-network
+
+  commercialinfo-svc:
+    build: ./comercialinfo-scv
+    container_name: commercialinfo-svc
+    depends_on:
+      - rabbitmq
+    networks:
+      - rabbitlab-network
+
+  socialmedia-svc:
+    build: ./socialmedia-svc
+    container_name: socialmedia-svc
+    depends_on:
+      - rabbitmq
+    networks:
+      - rabbitlab-network
+
+  officialrecords-svc:
+    build: ./officialrecords-svc
+    container_name: officialrecords-svc
+    depends_on:
+      - rabbitmq
+    networks:
+      - rabbitlab-network
+
+  dashboard-svc:
+    build: ./dashboard-svc
+    container_name: dashboard-svc
+    depends_on:
+      - rabbitmq
+    ports:
+      - "5001:5001"
+    networks:
+      - rabbitlab-network
+
+networks:
+  rabbitlab-network:
+    driver: bridge

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Resultados de Búsqueda</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #377013 0%, #242127 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        header h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        header p {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .results-container {
+            display: grid;
+            gap: 20px;
+        }
+        
+        .query-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+        
+        .query-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .query-id {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .query-badge {
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+        }
+        
+        .service-result {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 5px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .service-result:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+        
+        .service-name {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 14px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        .result-field {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .result-field:last-child {
+            border-bottom: none;
+        }
+        
+        .field-label {
+            font-weight: 600;
+            color: #555;
+            font-size: 13px;
+        }
+        
+        .field-value {
+            color: #333;
+            font-size: 13px;
+            word-break: break-word;
+        }
+        
+        .status-found {
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        .status-not-found {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        
+        .empty-state {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            padding: 60px 20px;
+            text-align: center;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+        
+        .empty-state p {
+            color: #999;
+            font-size: 16px;
+        }
+        
+        .empty-state-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+        
+        .refresh-btn {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 14px;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 10px;
+        }
+        
+        .refresh-btn:hover {
+            background: #764ba2;
+        }
+        
+        .total-queries {
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>👁️ Resultados de busqueda </h1>
+            <p>Resultados de búsquedas de información de personas</p>
+            <span class="total-queries">{{ results|length }} consulta(s)</span>
+        </header>
+        
+        {% if results %}
+            <div class="results-container">
+                {% for query_id, services in results.items() %}
+                    <div class="query-section">
+                        <div class="query-header">
+                            <div class="query-id">Query ID: {{ query_id }}</div>
+                            <div class="query-badge">{{ services|length }} servicio(s)</div>
+                        </div>
+                        
+                        <div class="results-grid">
+                            {% for service_name, result_data in services.items() %}
+                                <div class="service-result">
+                                    <span class="service-name">{{ service_name }}</span>
+                                    
+                                    {% for key, value in result_data.items() %}
+                                        {% if key != 'service' %}
+                                            <div class="result-field">
+                                                <span class="field-label">{{ key }}:</span>
+                                                <span class="field-value {% if key == 'status' %}status-{{ value }}{% endif %}">
+                                                    {% if value is none %}
+                                                        <em>-</em>
+                                                    {% else %}
+                                                        {{ value }}
+                                                    {% endif %}
+                                                </span>
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-state-icon">📭</div>
+                <p>No hay resultados aún. Realiza una búsqueda en /query</p>
+                <button class="refresh-btn" onclick="location.reload()">Refrescar</button>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>
