@@ -66,6 +66,14 @@ services:
     networks:
       - rabbitlab-network
 
+  financial-svc:
+    build: ./financial-svc
+    container_name: financial-svc
+    depends_on:
+      - rabbitmq
+    networks:
+      - rabbitlab-network
+
   dashboard-svc:
     build: ./dashboard-svc
     container_name: dashboard-svc
