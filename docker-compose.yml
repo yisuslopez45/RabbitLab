@@ -1,4 +1,4 @@
-version: '3.8'
+
 
 services:
   rabbitmq:
@@ -46,6 +46,15 @@ services:
     container_name: officialrecords-svc
     depends_on:
       - rabbitmq
+    networks:
+      - rabbitlab-network
+  
+  education-svc:
+    build: ./education-svc
+    container_name: education-svc
+    restart: unless-stopped
+    environment:
+      - RABBITMQ_HOST=rabbitmq
     networks:
       - rabbitlab-network
 
