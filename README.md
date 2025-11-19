@@ -14,9 +14,10 @@ exchange 'looking-for' (fanout)
    ├─→ commercialinfo-svc (busca en BD de empleos)
    ├─→ socialmedia-svc (busca en BD de redes sociales)
    └─→ officialrecords-svc (busca en BD de registros)
-   
+   └─→ travel-svc (busca en BD de viajes)
+
    ↓ (cada uno publica resultados)
-   
+
 exchange 'results' (fanout)
    │
    ↓
@@ -32,7 +33,7 @@ dashboard-svc (Flask)
 ### 1. **query-svc** (Puerto 5000)
 - **Propósito**: Punto de entrada para realizar consultas
 - **Endpoint**: `POST /query`
-- **Body**: 
+- **Body**:
   ```json
   {
     "name": "Juan Perez",
@@ -57,7 +58,12 @@ dashboard-svc (Flask)
 - **BD en memoria**: 3 registros con id, name, record, status_record
 - **Resultado**: `{id, status, record, record_status, service}`
 
-### 5. **dashboard-svc** (Puerto 5001)
+### 5. **travel-svc** ✈️ NUEVO
+- **Propósito**: Busca historial de viajes y visas
+- **BD en memoria**: 4 registros con id, name, destination, visa_type, visa_status, last_travel_date, entry_count
+- **Resultado**: `{id, status, destination, visa_type, visa_status, last_travel, entry_count, service}`
+
+### 6. **dashboard-svc** (Puerto 5001)
 - **Propósito**: Agrega resultados y visualiza
 - **Endpoints**:
   - `GET /health`: Estado
@@ -147,6 +153,19 @@ docker-compose down
   "service": "officialrecords"
 }
 ```
+**travel-svc**:
+```json
+{
+  "id": "12345",
+  "status": "found",
+  "destination": "Estados Unidos",
+  "visa_type": "Turista B2",
+  "visa_status": "Activa",
+  "last_travel": "2024-08-15",
+  "entry_count": 3,
+  "service": "travel"
+}
+```
 
 ### En Dashboard (/viewresults)
 Se agrupa por query_id y se muestran los 3 servicios con sus resultados.
@@ -168,6 +187,10 @@ RabbitLab/
 │   ├── Dockerfile
 │   └── readme.md
 ├── officialrecords-svc/
+│   ├── app.py
+│   ├── Dockerfile
+│   └── readme.md
+├── travel-svc/
 │   ├── app.py
 │   ├── Dockerfile
 │   └── readme.md

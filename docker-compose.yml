@@ -58,6 +58,14 @@ services:
     networks:
       - rabbitlab-network
 
+  travel-svc:
+    build: ./travel-svc
+    container_name: travel-svc
+    depends_on:
+      - rabbitmq
+    networks:
+      - rabbitlab-network
+
   dashboard-svc:
     build: ./dashboard-svc
     container_name: dashboard-svc
