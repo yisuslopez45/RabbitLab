@@ -15,6 +15,7 @@ exchange 'looking-for' (fanout)
    ├─→ socialmedia-svc (busca en BD de redes sociales)
    ├─→ officialrecords-svc (busca en BD de registros)
    └─→ financial-svc (busca en BD de información financiera)
+   └─→ travel-svc (busca en BD de viajes)
 
    ↓ (cada uno publica resultados)
 
@@ -68,8 +69,13 @@ dashboard-svc (Flask)
 - **BD en memoria**: 4 registros con id, name, bank, account_type, credit_score, status
 - **Resultado**: `{id, status, bank, account_type, credit_score, account_status, service}`
 
-### 6. **dashboard-svc** (Puerto 5001)
 
+### 5. **travel-svc** ✈️ NUEVO
+- **Propósito**: Busca historial de viajes y visas
+- **BD en memoria**: 4 registros con id, name, destination, visa_type, visa_status, last_travel_date, entry_count
+- **Resultado**: `{id, status, destination, visa_type, visa_status, last_travel, entry_count, service}`
+
+### 6. **dashboard-svc** (Puerto 5001)
 - **Propósito**: Agrega resultados y visualiza
 - **Endpoints**:
   - `GET /health`: Estado
@@ -162,6 +168,19 @@ docker-compose down
   "service": "officialrecords"
 }
 ```
+**travel-svc**:
+```json
+{
+  "id": "12345",
+  "status": "found",
+  "destination": "Estados Unidos",
+  "visa_type": "Turista B2",
+  "visa_status": "Activa",
+  "last_travel": "2024-08-15",
+  "entry_count": 3,
+  "service": "travel"
+}
+```
 
 **financial-svc**:
 
@@ -202,6 +221,7 @@ RabbitLab/
 │   ├── Dockerfile
 │   └── readme.md
 ├── financial-svc/
+├── travel-svc/
 │   ├── app.py
 │   ├── Dockerfile
 │   └── readme.md
